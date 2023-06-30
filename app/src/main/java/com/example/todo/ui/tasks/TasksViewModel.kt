@@ -6,13 +6,15 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todo.domain.TodoItemsRepository
-import com.example.todo.data.model.TodoItem
+import com.example.todo.domain.model.TodoItem
 import com.example.todo.ui.tasks.model.TasksAction
 import com.example.todo.ui.tasks.model.TasksEvent
 import com.example.todo.ui.tasks.model.TasksUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -22,6 +24,7 @@ import javax.inject.Inject
 class TasksViewModel @Inject constructor(
     private val repository: TodoItemsRepository
 ): ViewModel() {
+
     var uiState by mutableStateOf(TasksUiState())
         private set
 
@@ -39,13 +42,20 @@ class TasksViewModel @Inject constructor(
             is TasksAction.DeleteTask -> deleteItem(action.todoItem)
             is TasksAction.EditTask -> editTask(action.todoItem)
             is TasksAction.UpdateDoneVisibility -> updateDoneVisibility(action.visible)
+            else -> {}
         }
     }
 
     private fun setupTodoItems() {
         viewModelScope.launch {
-            repository.getTodoItems().collect {
-                uiState = uiState.copy(tasks = it)
+            repository.getTodoItems().combine(repository.doneVisible()) { tasks, doneVisible ->
+                val newTasks = when(doneVisible) {
+                    true -> tasks
+                    else -> tasks.filter { !it.isDone }
+                }
+                Pair(doneVisible, newTasks)
+            }.collectLatest {
+                uiState = uiState.copy(doneVisible = it.first, tasks = it.second)
             }
         }
     }
@@ -58,13 +68,13 @@ class TasksViewModel @Inject constructor(
 
     private fun updateItem(item: TodoItem) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.updateTodoItem(item)
+           repository.updateTodoItem(item)
         }
     }
 
-    private fun deleteItem(todoItem: TodoItem) {
+    private fun deleteItem(item: TodoItem) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.deleteTodoItem(todoItem)
+            repository.deleteTodoItem(item)
         }
     }
 
@@ -74,4 +84,6 @@ class TasksViewModel @Inject constructor(
             repository.updateDoneTodoItemsVisibility(visible)
         }
     }
+
+
 }

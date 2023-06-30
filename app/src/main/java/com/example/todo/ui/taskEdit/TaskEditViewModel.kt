@@ -8,8 +8,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.todo.domain.TodoItemsApiRepository
 import com.example.todo.domain.TodoItemsRepository
-import com.example.todo.data.model.TodoItem
+import com.example.todo.domain.model.TodoItem
 import com.example.todo.ui.taskEdit.model.TaskEditAction
 import com.example.todo.ui.taskEdit.model.TaskEditEvent
 import com.example.todo.ui.taskEdit.model.TaskEditUiState
@@ -22,12 +23,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
 class TaskEditViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val repo: TodoItemsRepository
+    private val repository: TodoItemsRepository,
 ): ViewModel() {
     private var isEditing = false
     private var previousTask: TodoItem? = null
@@ -70,15 +72,16 @@ class TaskEditViewModel @Inject constructor(
             )
         else
             TodoItem(
-                id = LocalDateTime.now().second.toString(),
+                id = UUID.randomUUID().toString(),
                 description = uiState.description,
                 priority = uiState.priority,
                 deadline = if (uiState.isDeadlineVisible) uiState.deadline else null,
+                lastUpdatedBy = LocalDateTime.now(ZoneOffset.UTC).toString()
             )
 
         viewModelScope.launch(Dispatchers.IO) {
-            if (isEditing) repo.updateTodoItem(newTask)
-            else repo.addTodoItem(newTask)
+            if (isEditing) repository.updateTodoItem(newTask)
+            else repository.addTodoItem(newTask)
             _uiEvent.send(TaskEditEvent.SaveTask)
         }
     }
@@ -86,14 +89,14 @@ class TaskEditViewModel @Inject constructor(
     private fun deleteTask() {
         viewModelScope.launch(Dispatchers.IO) {
             if (isEditing)
-                previousTask?.let { repo.deleteTodoItem(it) }
+                previousTask?.let { repository.deleteTodoItem(it) }
             _uiEvent.send(TaskEditEvent.NavigateBack)
         }
     }
 
     private fun setupTask(id: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            repo.findItemById(id)?.let { item ->
+            repository.findItemById(id)?.let { item ->
                 isEditing = true
                 previousTask = item
 

@@ -1,3 +1,8 @@
 package com.example.todo.utils
 
-const val DAY = 86_400_000
+class Constants {
+
+    companion object {
+        const val BASE_URL =  "https://beta.mrdekk.ru/todobackend/"
+    }
+}

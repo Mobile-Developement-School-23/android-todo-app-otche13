@@ -7,7 +7,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.todo.data.model.TodoItem
+import com.example.todo.domain.model.TodoItem
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -15,6 +15,12 @@ interface TodoDao {
 
     @Query("SELECT * FROM todoitem")
     fun getTodoItems(): Flow<List<TodoItem>>
+
+    @Query("SELECT * FROM todoitem")
+    fun getTodoItemsNoFlow(): List<TodoItem>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateTodoList(todoItems: List<TodoItem>)
 
     @Query("SELECT * FROM TodoItem WHERE id = :id")
     suspend fun getTodoById(id: String): TodoItem?

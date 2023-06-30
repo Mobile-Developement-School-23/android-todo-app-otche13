@@ -1,9 +1,9 @@
-package com.plcoding.cleanarchitecturenoteapp.feature_note.data.data_source
+package com.example.todo.data.db
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.example.todo.data.db.TodoDao
-import com.example.todo.data.model.TodoItem
+import com.example.todo.domain.model.TodoItem
 
 
 @Database(

@@ -50,8 +50,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.example.todo.R
-import com.example.todo.data.model.Priority
-import com.example.todo.data.model.TodoItem
+import com.example.todo.domain.model.Priority
+import com.example.todo.domain.model.TodoItem
 import com.example.todo.ui.tasks.model.TasksAction
 import com.example.todo.ui.theme.ExtendedTheme
 import com.example.todo.ui.theme.Gray
@@ -185,7 +185,7 @@ private fun TasksItemIcon(
     priority: Priority,
     isHighPriority: Boolean
 ) {
-    if (priority != Priority.COMMON) {
+    if (priority != Priority.NO) {
         if (isHighPriority)
             Icon(
                 modifier = Modifier.padding(top = 12.dp, end = 4.dp),

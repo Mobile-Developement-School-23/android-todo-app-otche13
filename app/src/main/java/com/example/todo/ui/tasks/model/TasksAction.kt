@@ -1,6 +1,6 @@
 package com.example.todo.ui.tasks.model
 
-import com.example.todo.data.model.TodoItem
+import com.example.todo.domain.model.TodoItem
 
 sealed class TasksAction {
     object CreateTask: TasksAction()

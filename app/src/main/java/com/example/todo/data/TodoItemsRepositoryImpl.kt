@@ -1,14 +1,16 @@
 package com.example.todo.data
 
 import com.example.todo.data.db.TodoDao
-import com.example.todo.data.model.TodoItem
+import com.example.todo.domain.model.TodoItem
 import com.example.todo.domain.TodoItemsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class TodoItemsRepositoryImpl (private val dao: TodoDao):TodoItemsRepository{
 
-    private var isDoneVisible = true
+    private var isDoneVisibleFlow = MutableStateFlow(true)
 
     private val todoFlow = dao.getTodoItems()
 
@@ -33,17 +35,10 @@ class TodoItemsRepositoryImpl (private val dao: TodoDao):TodoItemsRepository{
     }
 
     override suspend fun updateDoneTodoItemsVisibility(visible: Boolean) {
-        isDoneVisible = visible
-        updateFlow()
+        isDoneVisibleFlow.update { visible }
     }
 
-    private suspend fun updateFlow() {
-        todoFlow.collect() {
-            if (isDoneVisible)
-                it.toList()
-            else
-                it.filter { !it.isDone }
-        }
-    }
+    override fun doneVisible(): Flow<Boolean> = isDoneVisibleFlow.asStateFlow()
+
 
 }
