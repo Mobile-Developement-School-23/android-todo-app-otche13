@@ -1,16 +1,13 @@
 package com.example.todo.ui.taskEdit
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.todo.domain.TodoItemsApiRepository
-import com.example.todo.domain.TodoItemsRepository
-import com.example.todo.domain.model.TodoItem
+import com.example.todo.data.abstraction.TodoItemsRepository
+import com.example.todo.data.model.TodoItem
 import com.example.todo.ui.taskEdit.model.TaskEditAction
 import com.example.todo.ui.taskEdit.model.TaskEditEvent
 import com.example.todo.ui.taskEdit.model.TaskEditUiState
@@ -21,15 +18,12 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.LocalDateTime
-import java.time.ZoneOffset
-import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
 class TaskEditViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val repository: TodoItemsRepository,
+    private val repo: TodoItemsRepository
 ): ViewModel() {
     private var isEditing = false
     private var previousTask: TodoItem? = null
@@ -52,7 +46,7 @@ class TaskEditViewModel @Inject constructor(
             is TaskEditAction.DescriptionChange -> uiState = uiState.copy(description = action.description)
             is TaskEditAction.UpdateDeadlineVisibility -> uiState = uiState.copy(isDeadlineVisible = action.visible)
             is TaskEditAction.UpdatePriority -> uiState = uiState.copy(priority = action.priority)
-            is TaskEditAction.UpdateDeadline -> uiState = uiState.copy(deadline = dateFromLong(action.deadline).toString())
+            is TaskEditAction.UpdateDeadline -> uiState = uiState.copy(deadline = dateFromLong(action.deadline))
             TaskEditAction.SaveTask -> saveTask()
             TaskEditAction.DeleteTask -> deleteTask()
             TaskEditAction.NavigateUp -> viewModelScope.launch { _uiEvent.send(TaskEditEvent.NavigateBack) }
@@ -67,21 +61,18 @@ class TaskEditViewModel @Inject constructor(
             previousTask!!.copy(
                 description = uiState.description,
                 priority = uiState.priority,
-                deadline = if (uiState.isDeadlineVisible) uiState.deadline else null,
-                editedAt = LocalDateTime.now(ZoneOffset.UTC).toString()
+                deadline = if (uiState.isDeadlineVisible) uiState.deadline else null
             )
         else
             TodoItem(
-                id = UUID.randomUUID().toString(),
                 description = uiState.description,
                 priority = uiState.priority,
-                deadline = if (uiState.isDeadlineVisible) uiState.deadline else null,
-                lastUpdatedBy = LocalDateTime.now(ZoneOffset.UTC).toString()
+                deadline = if (uiState.isDeadlineVisible) uiState.deadline else null
             )
 
         viewModelScope.launch(Dispatchers.IO) {
-            if (isEditing) repository.updateTodoItem(newTask)
-            else repository.addTodoItem(newTask)
+            if (isEditing) repo.updateTodoItem(newTask)
+            else repo.addTodoItem(newTask)
             _uiEvent.send(TaskEditEvent.SaveTask)
         }
     }
@@ -89,14 +80,14 @@ class TaskEditViewModel @Inject constructor(
     private fun deleteTask() {
         viewModelScope.launch(Dispatchers.IO) {
             if (isEditing)
-                previousTask?.let { repository.deleteTodoItem(it) }
+                previousTask?.let { repo.deleteTodoItem(it) }
             _uiEvent.send(TaskEditEvent.NavigateBack)
         }
     }
 
     private fun setupTask(id: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.findItemById(id)?.let { item ->
+            repo.findItemById(id)?.let { item ->
                 isEditing = true
                 previousTask = item
 

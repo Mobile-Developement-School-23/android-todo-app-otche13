@@ -5,14 +5,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.todo.domain.TodoItemsRepository
-import com.example.todo.domain.model.TodoItem
+import com.example.todo.data.abstraction.AuthRepository
+import com.example.todo.data.abstraction.TodoItemsRepository
+import com.example.todo.data.model.TodoItem
 import com.example.todo.ui.tasks.model.TasksAction
 import com.example.todo.ui.tasks.model.TasksEvent
 import com.example.todo.ui.tasks.model.TasksUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -22,9 +24,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TasksViewModel @Inject constructor(
-    private val repository: TodoItemsRepository
+    private val authRepo: AuthRepository,
+    private val todoRepo: TodoItemsRepository
 ): ViewModel() {
-
     var uiState by mutableStateOf(TasksUiState())
         private set
 
@@ -42,13 +44,15 @@ class TasksViewModel @Inject constructor(
             is TasksAction.DeleteTask -> deleteItem(action.todoItem)
             is TasksAction.EditTask -> editTask(action.todoItem)
             is TasksAction.UpdateDoneVisibility -> updateDoneVisibility(action.visible)
-            else -> {}
+            is TasksAction.UpdateRequest -> viewModelScope.launch(Dispatchers.IO) { todoRepo.updateTodoItems() }
+            is TasksAction.RefreshTasks -> refreshTasks()
+            TasksAction.SignOut -> signOut()
         }
     }
 
     private fun setupTodoItems() {
         viewModelScope.launch {
-            repository.getTodoItems().combine(repository.doneVisible()) { tasks, doneVisible ->
+            todoRepo.todoItems().combine(todoRepo.doneVisible()) { tasks, doneVisible ->
                 val newTasks = when(doneVisible) {
                     true -> tasks
                     else -> tasks.filter { !it.isDone }
@@ -68,22 +72,41 @@ class TasksViewModel @Inject constructor(
 
     private fun updateItem(item: TodoItem) {
         viewModelScope.launch(Dispatchers.IO) {
-           repository.updateTodoItem(item)
+            todoRepo.updateTodoItem(item)
         }
     }
 
     private fun deleteItem(item: TodoItem) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.deleteTodoItem(item)
+            todoRepo.deleteTodoItem(item)
         }
     }
 
     private fun updateDoneVisibility(visible: Boolean) {
-        uiState =  uiState.copy(doneVisible = visible)
+        uiState = uiState.copy(doneVisible = visible)
         viewModelScope.launch(Dispatchers.IO) {
-            repository.updateDoneTodoItemsVisibility(visible)
+            todoRepo.updateDoneTodoItemsVisibility(visible)
         }
     }
 
+    private fun refreshTasks() {
+        viewModelScope.launch {
+            uiState = uiState.copy(isRefreshing = true)
+            if (!todoRepo.refreshTodoItems())
+                _uiEvent.send(TasksEvent.ConnectionError)
+            uiState = uiState.copy(isRefreshing = false)
+        }
+    }
 
+    private fun signOut() {
+        viewModelScope.launch {
+            launch(Dispatchers.IO) {
+                todoRepo.pushTodoItems()
+            }
+            delay(100)
+            authRepo.signOut()
+            todoRepo.clearTodoItems()
+            _uiEvent.send(TasksEvent.SignOut)
+        }
+    }
 }

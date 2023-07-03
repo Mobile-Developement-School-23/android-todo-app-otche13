@@ -1,6 +1,6 @@
 package com.example.todo.ui.tasks.model
 
-import com.example.todo.domain.model.TodoItem
+import com.example.todo.data.model.TodoItem
 
 sealed class TasksAction {
     object CreateTask: TasksAction()
@@ -8,4 +8,7 @@ sealed class TasksAction {
     data class DeleteTask(val todoItem: TodoItem) : TasksAction()
     data class EditTask(val todoItem: TodoItem) : TasksAction()
     data class UpdateDoneVisibility(val visible: Boolean): TasksAction()
+    object UpdateRequest: TasksAction()
+    object RefreshTasks: TasksAction()
+    object SignOut: TasksAction()
 }

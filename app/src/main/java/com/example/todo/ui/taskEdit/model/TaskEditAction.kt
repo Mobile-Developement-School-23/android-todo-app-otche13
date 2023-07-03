@@ -1,6 +1,6 @@
 package com.example.todo.ui.taskEdit.model
 
-import com.example.todo.domain.model.Priority
+import com.example.todo.data.model.Priority
 
 sealed class TaskEditAction {
     data class DescriptionChange(val description: String) : TaskEditAction()
