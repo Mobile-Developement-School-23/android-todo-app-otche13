@@ -7,7 +7,7 @@ import java.time.LocalDate
 data class TaskEditUiState(
     val description: String = "",
     val priority: Priority = Priority.COMMON,
-    val deadline: String = tomorrowLocalDate.toString(),
+    val deadline: LocalDate = tomorrowLocalDate,
     val isDeadlineVisible: Boolean = false,
     val isEditing: Boolean = false
 ) {

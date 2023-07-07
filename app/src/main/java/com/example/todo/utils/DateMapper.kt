@@ -21,7 +21,5 @@ fun dateFromLong(time: Long): LocalDate =
 fun LocalDate.toStringDate(): String =
     DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).format(this)
 
-
-
-//fun LocalDate.toShortStringDate(): String =
-//    DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).format(this)
+fun LocalDate.toShortStringDate(): String =
+    DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).format(this)

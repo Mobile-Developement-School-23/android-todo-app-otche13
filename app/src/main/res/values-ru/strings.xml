@@ -20,4 +20,9 @@
     <string name="edit">Изменить</string>
     <string name="ok">OK</string>
     <string name="cancel">Отмена</string>
+    <string name="login_with_yandex_id">Login with Yandex ID</string>
+    <string name="sign_out">Sign-Out</string>
+    <string name="connection_error">Connection error</string>
+    <string name="synchronizing">Synchronizing…</string>
+    <string name="synchronization_in_progress">Synchronization in progress</string>
 </resources>

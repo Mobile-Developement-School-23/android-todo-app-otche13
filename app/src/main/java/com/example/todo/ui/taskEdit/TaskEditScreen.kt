@@ -22,7 +22,6 @@ import com.example.todo.ui.taskEdit.model.TaskEditEvent
 import com.example.todo.ui.taskEdit.model.TaskEditUiState
 import com.example.todo.ui.theme.ExtendedTheme
 import kotlinx.coroutines.flow.Flow
-import java.time.LocalDate
 
 @Composable
 fun TaskEditScreen(
@@ -57,7 +56,7 @@ fun TaskEditScreen(
                 TaskEditDivider(PaddingValues(horizontal = 16.dp))
 
                 TaskEditDateField(
-                    date = LocalDate.parse(uiState.deadline),
+                    date = uiState.deadline,
                     isDateVisible = uiState.isDeadlineVisible,
                     onAction = onAction
                 )
