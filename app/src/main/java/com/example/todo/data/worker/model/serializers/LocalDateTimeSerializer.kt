@@ -1,4 +1,4 @@
-package com.example.todo.data.model.serializers
+package com.example.todo.data.worker.model.serializers
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind

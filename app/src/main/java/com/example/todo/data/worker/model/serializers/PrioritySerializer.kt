@@ -1,4 +1,4 @@
-package com.example.todo.data.model.serializers
+package com.example.todo.data.worker.model.serializers
 
 import com.example.todo.data.model.Priority
 import kotlinx.serialization.KSerializer

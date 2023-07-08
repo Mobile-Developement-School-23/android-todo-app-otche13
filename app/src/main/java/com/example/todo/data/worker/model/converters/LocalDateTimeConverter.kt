@@ -1,4 +1,4 @@
-package com.example.todo.data.model.converters
+package com.example.todo.data.worker.model.converters
 
 import androidx.room.TypeConverter
 import java.time.Instant
