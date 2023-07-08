@@ -11,7 +11,7 @@ import com.example.todo.data.local.db.TasksDatabase
 import com.example.todo.data.local.store.AuthInfoDataStoreManager
 import com.example.todo.data.remote.TasksService
 import com.example.todo.data.repo.AuthRepositoryImpl
-import com.example.todo.data.repo.TasksRepositoryImpl
+import com.example.todo.data.worker.repo.TasksRepositoryImpl
 import com.example.todo.utils.BASE_URL
 import com.example.todo.utils.DATABASE_NAME
 import com.example.todo.utils.LIST

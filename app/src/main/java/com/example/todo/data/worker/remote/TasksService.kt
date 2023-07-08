@@ -2,7 +2,7 @@ package com.example.todo.data.remote
 
 import com.example.todo.data.abstraction.AuthInfoProvider
 import com.example.todo.data.model.AuthInfo
-import com.example.todo.data.model.TodoItem
+import com.example.todo.data.model.TodoItemDto
 import com.example.todo.data.remote.model.RequestResult
 import com.example.todo.data.remote.model.TodoItemRequest
 import com.example.todo.data.remote.model.TodoItemResponse
@@ -40,16 +40,16 @@ class TasksService @Inject constructor(
     suspend fun getTasks(): RequestResult<TodoItemsResponse> =
         client.safeRequest { get { requestHeaders() } }
 
-    suspend fun mergeTasks(tasks: List<TodoItem>): RequestResult<TodoItemsResponse> =
+    suspend fun mergeTasks(tasks: List<TodoItemDto>): RequestResult<TodoItemsResponse> =
         client.safeRequest { patch { requestHeaders(); setBody(TodoItemsRequest(tasks)) } }
 
-    suspend fun addTask(task: TodoItem): RequestResult<TodoItemResponse> =
+    suspend fun addTask(task: TodoItemDto): RequestResult<TodoItemResponse> =
         client.safeRequest { post { requestHeaders(); setBody(TodoItemRequest(task)) } }
 
     suspend fun getTask(id: String): RequestResult<TodoItemResponse> =
         client.safeRequest { get(id) { requestHeaders() } }
 
-    suspend fun updateTask(task: TodoItem): RequestResult<TodoItemResponse> =
+    suspend fun updateTask(task: TodoItemDto): RequestResult<TodoItemResponse> =
         client.safeRequest { put(task.id) { requestHeaders(); setBody(TodoItemRequest(task)) } }
 
     suspend fun deleteTask(id: String): RequestResult<TodoItemResponse> =

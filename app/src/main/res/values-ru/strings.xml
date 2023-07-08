@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Сделать</string>
+    <string name="app_name">ToDo</string>
     <string name="action_settings">Настройки</string>
     <string name="my_tasks">Мои дела</string>
     <string name="visibility_button">Видимость</string>

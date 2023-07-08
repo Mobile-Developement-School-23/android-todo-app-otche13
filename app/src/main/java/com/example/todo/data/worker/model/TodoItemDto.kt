@@ -3,22 +3,19 @@ package com.example.todo.data.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.todo.data.model.Priority
-import com.example.todo.data.model.serializers.LocalDateSerializer
-import com.example.todo.data.model.serializers.LocalDateTimeSerializer
-import com.example.todo.data.model.serializers.PrioritySerializer
+import com.example.todo.data.repo.mapper.mapToString
+import com.example.todo.data.repo.mapper.toTimestamp
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @Entity(tableName = "task")
-data class TodoItem(
+data class TodoItemDto(
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     @PrimaryKey(autoGenerate = false)
     @ColumnInfo(name = "id")
@@ -29,15 +26,13 @@ data class TodoItem(
     @SerialName("text")
     val description: String,
 
-    @Serializable(with = LocalDateSerializer::class)
     @ColumnInfo(name = "deadline")
     @SerialName("deadline")
-    val deadline: LocalDate? = null,
+    val deadline: Long? = null,
 
-    @Serializable(with = PrioritySerializer::class)
     @ColumnInfo(name = "importance")
     @SerialName("importance")
-    val priority: Priority = Priority.COMMON,
+    val priority: String = Priority.COMMON.mapToString(),
 
     @ColumnInfo(name = "done")
     @SerialName("done")
@@ -47,15 +42,13 @@ data class TodoItem(
     @SerialName("color")
     val color: String? = null,
 
-    @Serializable(with = LocalDateTimeSerializer::class)
     @ColumnInfo(name = "created_at")
     @SerialName("created_at")
-    val createdAt: LocalDateTime = LocalDateTime.now(),
+    val createdAt: Long = LocalDateTime.now().toTimestamp(),
 
-    @Serializable(with = LocalDateTimeSerializer::class)
     @ColumnInfo(name = "changed_at")
     @SerialName("changed_at")
-    val editedAt: LocalDateTime = LocalDateTime.now(),
+    val editedAt: Long = LocalDateTime.now().toTimestamp(),
 
     @ColumnInfo(name = "last_updated_by")
     @SerialName("last_updated_by")

@@ -1,6 +1,9 @@
 package com.example.todo.ui.taskEdit
 
+import android.annotation.SuppressLint
+import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
@@ -19,6 +22,7 @@ internal fun NavController.navigateToTaskEdit(id: String = "") {
     }
 }
 
+@SuppressLint("StateFlowValueCalledInComposition")
 internal fun NavGraphBuilder.taskEditScreen(
     onNavigateUp: () -> Unit,
     onSuccessSave: () -> Unit
@@ -31,8 +35,10 @@ internal fun NavGraphBuilder.taskEditScreen(
         )
     ) {
         val viewModel: TaskEditViewModel = hiltViewModel()
+        val uiState by  viewModel.uiState.collectAsStateWithLifecycle()
+
         TaskEditScreen(
-            uiState = viewModel.uiState,
+            uiState = uiState,
             uiEvent = viewModel.uiEvent,
             onAction = viewModel::onAction,
             onNavigateUp = onNavigateUp,

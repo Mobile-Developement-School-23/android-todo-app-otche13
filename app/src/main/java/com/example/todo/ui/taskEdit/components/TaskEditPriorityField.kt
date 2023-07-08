@@ -23,7 +23,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.example.todo.R
-import com.example.todo.domain.model.Priority
+import com.example.todo.data.model.Priority
+
 import com.example.todo.ui.taskEdit.model.TaskEditAction
 import com.example.todo.ui.theme.ExtendedTheme
 import com.example.todo.ui.theme.GrayLight
@@ -80,7 +81,7 @@ private fun PriorityDropdownMenu(
         DropdownMenuItem(
             text = { Text(stringResource(R.string.priority_no)) },
             onClick = {
-                onAction(TaskEditAction.UpdatePriority(Priority.NO))
+                onAction(TaskEditAction.UpdatePriority(Priority.COMMON))
                 hideMenu()
             },
             leadingIcon = {
