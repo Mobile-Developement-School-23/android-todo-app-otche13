@@ -15,9 +15,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.todo.ui.components.pullRefresh.PullRefreshIndicator
-import com.example.todo.ui.components.pullRefresh.pullRefresh
-import com.example.todo.ui.components.pullRefresh.rememberPullRefreshState
 import com.example.todo.ui.tasks.components.TasksFloatingActionButton
 import com.example.todo.ui.tasks.components.TasksItem
 import com.example.todo.ui.tasks.components.TasksTopAppBar
@@ -26,6 +23,8 @@ import com.example.todo.ui.tasks.model.TasksAction
 import com.example.todo.ui.tasks.model.TasksEvent
 import com.example.todo.ui.tasks.model.TasksUiState
 import com.example.todo.ui.theme.ExtendedTheme
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshState
 import kotlinx.coroutines.flow.Flow
 
 @Composable
@@ -38,10 +37,6 @@ fun TasksScreen(
     onSignOut: () -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = uiState.isRefreshing,
-        onRefresh = { onAction(TasksAction.RefreshTasks) }
-    )
 
     TasksUiEventHandler(uiEvent, onCreateTask, onAction, onEditTask, onSignOut, snackbarHostState)
 
@@ -57,31 +52,32 @@ fun TasksScreen(
         },
         containerColor = ExtendedTheme.colors.backPrimary
     ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .padding(paddingValues)
-                .pullRefresh(pullRefreshState)
+        SwipeRefresh(
+            onRefresh = { onAction(TasksAction.RefreshTasks) } ,
+            state = SwipeRefreshState(uiState.isRefreshing)
         ) {
-            LazyColumn(
+            Box(
                 modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                items(uiState.tasks, key = { it.id }) {
-                    TasksItem(
-                        task = it,
-                        onAction = onAction
-                    )
-                }
-                item {
-                    Spacer(modifier = Modifier.height(96.dp))
-                }
-            }
+                    .padding(paddingValues)
 
-            PullRefreshIndicator(
-                refreshing = uiState.isRefreshing,
-                state = pullRefreshState,
-                modifier = Modifier.align(Alignment.TopCenter)
-            )
+            ) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    items(uiState.tasks, key = { it.id }) {
+                        TasksItem(
+                            task = it,
+                            onAction = onAction
+                        )
+                    }
+                    item {
+                        Spacer(modifier = Modifier.height(96.dp))
+                    }
+                }
+
+
+            }
         }
 
     }

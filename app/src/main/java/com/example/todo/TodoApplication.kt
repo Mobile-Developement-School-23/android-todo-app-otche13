@@ -12,6 +12,7 @@ import javax.inject.Inject
 
 @HiltAndroidApp
 class TodoApplication: Application(), Configuration.Provider {
+
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
